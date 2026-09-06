@@ -34,8 +34,8 @@ export const Route = createFileRoute("/")({
 const POINTS = [100, 70, 40, 20];
 
 function pick(exclude?: string): CountryMeta {
-  let c = quizPool[Math.floor(Math.random() * quizPool.length)];
-  while (c.id === exclude) c = quizPool[Math.floor(Math.random() * quizPool.length)];
+  let c = quizPool[Math.floor(Math.random() * quizPool.length)]!;
+  while (c.id === exclude) c = quizPool[Math.floor(Math.random() * quizPool.length)]!;
   return c;
 }
 
@@ -67,7 +67,7 @@ function Game() {
     const ok = selected === target.id;
     setResult({ ok, guessId: selected });
     if (ok) {
-      setScore((s) => s + POINTS[hints]);
+      setScore((s) => s + POINTS[hints]!);
       setStreak((s) => s + 1);
     } else {
       setStreak(0);
@@ -118,13 +118,15 @@ function Game() {
         <section className="panel overflow-hidden p-2">
           <WorldMap
             selected={selected}
-            onSelect={(id) => !finished && setSelected(id)}
+            onSelect={(id) => {
+              if (!finished) setSelected(id);
+            }}
             disabled={finished}
-            correctId={finished ? target?.id : null}
+            correctId={finished ? (target?.id ?? null) : null}
             wrongId={result && !result.ok ? result.guessId : null}
             highlightIds={ellipseIds}
             ellipseIds={ellipseIds}
-            ellipseLabel={ellipseLabel}
+            {...(ellipseLabel ? { ellipseLabel } : {})}
           />
         </section>
 
@@ -139,7 +141,7 @@ function Game() {
             <p className="mt-3 text-sm text-muted-foreground">
               {finished
                 ? result?.ok
-                  ? `Acertou! +${POINTS[hints]} pontos.`
+                  ? `Acertou! +${POINTS[hints]!} pontos.`
                   : `Errou. O país estava marcado em verde.`
                 : selected
                   ? "País selecionado. Confirme sua resposta."
@@ -171,7 +173,7 @@ function Game() {
             <div className="flex items-center justify-between">
               <p className="font-display text-sm font-semibold">Dicas</p>
               <p className="text-xs text-muted-foreground">
-                Valem {POINTS[hints]} pts
+                Valem {POINTS[hints]!} pts
               </p>
             </div>
             <div className="mt-3 flex flex-col gap-2">
