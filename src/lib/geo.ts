@@ -59,28 +59,33 @@ const shapeById = new Map(shapes.map((s) => [s.id, s]));
 
 /** Ellipse (in map coordinates) enclosing every country of a group. */
 export function groupEllipse(ids: string[]) {
-  let x0 = Infinity,
-    y0 = Infinity,
-    x1 = -Infinity,
-    y1 = -Infinity;
+  const cxs: number[] = [];
+  const cys: number[] = [];
   for (const id of ids) {
     const s = shapeById.get(id);
     if (!s) continue;
-    // Skip far-flung overseas territories that would blow up the ellipse.
     const [[bx0, by0], [bx1, by1]] = s.bounds;
-    x0 = Math.min(x0, bx0);
-    y0 = Math.min(y0, by0);
-    x1 = Math.max(x1, bx1);
-    y1 = Math.max(y1, by1);
+    cxs.push((bx0 + bx1) / 2);
+    cys.push((by0 + by1) / 2);
   }
-  if (!isFinite(x0)) return null;
+  if (!cxs.length) return null;
+  // Trim outliers (overseas territories) so the ring hugs the real landmass.
+  const trim = (arr: number[]) => {
+    const a = [...arr].sort((p, q) => p - q);
+    const lo = a[Math.floor((a.length - 1) * 0.08)]!;
+    const hi = a[Math.ceil((a.length - 1) * 0.92)]!;
+    return [lo, hi] as const;
+  };
+  const [x0, x1] = trim(cxs);
+  const [y0, y1] = trim(cys);
   return {
     cx: (x0 + x1) / 2,
     cy: (y0 + y1) / 2,
-    rx: Math.max((x1 - x0) / 2 + 14, 20),
-    ry: Math.max((y1 - y0) / 2 + 14, 20),
+    rx: Math.max((x1 - x0) / 2 + 22, 26),
+    ry: Math.max((y1 - y0) / 2 + 22, 26),
   };
 }
+
 
 export function idsInRegion(region: string) {
   return countries.filter((c) => c.region === region).map((c) => c.id);
