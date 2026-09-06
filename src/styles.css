@@ -269,3 +269,8 @@ body {
   border-radius: var(--radius);
   backdrop-filter: blur(8px);
 }
+
+#lovable-badge,
+[lovable-badge] {
+  display: none !important;
+}
