@@ -127,6 +127,7 @@ function Game() {
             highlightIds={ellipseIds}
             ellipseIds={ellipseIds}
             {...(ellipseLabel ? { ellipseLabel } : {})}
+            resetKey={round}
           />
         </section>
 
